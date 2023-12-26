@@ -25,6 +25,7 @@ public class LocationUtils {
     private static final List<LocationBoundary> locationBoundaries = new ArrayList<>();
     private static final String phoneNumber = "+919607359454";
     private static final int defaultBoundaryRadiusInMeters = 100;
+    private static final String SMS_PREFERENCES_PREFIX = "sms_preferences_";
 
     static {
         // Initialize the list of location boundaries
@@ -96,18 +97,22 @@ public class LocationUtils {
         if (isWithinBoundary(currentLocation, boundary.getLatitude(), boundary.getLongitude(), boundary.getBoundaryRadius())) {
             // Check if the message has been sent today for this boundary
             if (!hasMessageBeenSentToday(context, boundary)) {
-                // Send the SMS
-                sendSms(boundary.getPhoneNumber(), boundary.getMessage());
+                // Check if the person has moved more than a kilometer in the last hour
+                if (hasMovedMoreThanKilometerInLastHour(context, boundary, currentLocation)) {
+                    // Send the SMS
+                    sendSms(boundary.getPhoneNumber(), boundary.getMessage());
+                    updateLastLocationUpdateDate(context, boundary);
 
-                // Update the last sent date for this boundary
-                updateLastMessageSentDate(context, boundary);
+                    // Update the last sent date for this boundary
+                    updateLastMessageSentDate(context, boundary);
+                }
             }
         }
     }
 
     private static boolean hasMessageBeenSentToday(Context context, LocationBoundary boundary) {
         SharedPreferences preferences = context.getSharedPreferences(
-                "sms_preferences_" + boundary.getPhoneNumber(),
+                SMS_PREFERENCES_PREFIX + boundary.getName(),
                 Context.MODE_PRIVATE
         );
         long lastSentDateMillis = preferences.getLong("last_message_sent_date", 0);
@@ -126,7 +131,7 @@ public class LocationUtils {
 
     private static void updateLastMessageSentDate(Context context, LocationBoundary boundary) {
         SharedPreferences preferences = context.getSharedPreferences(
-                "sms_preferences_" + boundary.getPhoneNumber(),
+                SMS_PREFERENCES_PREFIX + boundary.getName(),
                 Context.MODE_PRIVATE
         );
         SharedPreferences.Editor editor = preferences.edit();
@@ -163,6 +168,48 @@ public class LocationUtils {
         if (indexToRemove != -1) {
             locationBoundaries.remove(indexToRemove);
         }
+    }
+
+    private static boolean hasMovedMoreThanKilometerInLastHour(Context context, LocationBoundary boundary, Location currentLocation) {
+        SharedPreferences preferences = context.getSharedPreferences(
+                SMS_PREFERENCES_PREFIX + boundary.getName(),
+                Context.MODE_PRIVATE
+        );
+        long lastLocationUpdateMillis = preferences.getLong("last_location_update_date", 0);
+
+        // Calculate the time elapsed since the last location update
+        long currentTimeMillis = System.currentTimeMillis();
+        long timeElapsed = currentTimeMillis - lastLocationUpdateMillis;
+
+        // Check if the time elapsed is greater than one hour
+        if (timeElapsed > (60 * 60 * 1000)) {
+            // Calculate the distance traveled
+            float[] distance = new float[1];
+            Location.distanceBetween(
+                    currentLocation.getLatitude(), currentLocation.getLongitude(),
+                    boundary.getLatitude(), boundary.getLongitude(),
+                    distance);
+
+            // Check if the distance traveled is more than one kilometer
+            return distance[0] > 1000;
+        }
+
+        // Return false if the time elapsed is greater than or equal to one hour
+        return false;
+    }
+
+    private static void updateLastLocationUpdateDate(Context context, LocationBoundary boundary) {
+        SharedPreferences preferences = context.getSharedPreferences(
+                SMS_PREFERENCES_PREFIX + boundary.getName(),
+                Context.MODE_PRIVATE
+        );
+        SharedPreferences.Editor editor = preferences.edit();
+
+        // Save the current date as the last location update date for this boundary
+        long currentTimeMillis = System.currentTimeMillis();
+        editor.putLong("last_location_update_date", currentTimeMillis);
+
+        editor.apply();
     }
 }
 
