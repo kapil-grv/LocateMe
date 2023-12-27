@@ -1,4 +1,4 @@
-package com.example.locateme;
+package capspatial.locateme;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Objects;
 
 public class LocationEntryActivity extends AppCompatActivity {
 
@@ -19,7 +21,6 @@ public class LocationEntryActivity extends AppCompatActivity {
     private EditText boundaryRadiusEditText;
     private Button saveButton;
     private Button deleteButton;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +53,22 @@ public class LocationEntryActivity extends AppCompatActivity {
 
         // Check if in edit mode
         Intent intent = getIntent();
-        if (intent.hasExtra("EDIT_MODE")) {
-            boolean editMode = intent.getBooleanExtra("EDIT_MODE", false);
-            if (editMode) {
-                // Load existing entry details for editing
-                Log.i("Edit Mode", String.valueOf(true));
-                loadExistingEntry(intent);
+
+        // Check if the intent has extras
+        if (intent != null && intent.getExtras() != null) {
+            Bundle extras = intent.getExtras();
+
+            // Iterate through all extras and print key-value pairs
+            for (String key : extras.keySet()) {
+                Object value = extras.get(key);
+                Log.d("Intent Extra", key + ": " + value.toString());
             }
+        }
+
+        if (intent.getBooleanExtra("EDIT_MODE", false)) {
+            // Load existing entry details for editing
+            Log.i("Edit Mode", String.valueOf(true));
+            loadExistingEntry(intent);
         } else {
             // Handle the button click event for creating an entry
             latitudeEditText.setText(String.valueOf(intent.getDoubleExtra("LATITUDE", 0.0)));
@@ -68,6 +78,9 @@ public class LocationEntryActivity extends AppCompatActivity {
     }
 
     private void loadExistingEntry(Intent intent) {
+
+        Log.i("Editing", String.valueOf(intent.getIntExtra("BOUNDARY_RADIUS", 0)));
+
         String name = intent.getStringExtra("NAME");
         String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
         String message = intent.getStringExtra("MESSAGE");
@@ -91,6 +104,9 @@ public class LocationEntryActivity extends AppCompatActivity {
     }
 
     private void saveLocationEntry() {
+
+        Log.i("Saving entry", "Test");
+
         String name = nameEditText.getText().toString();
         String phoneNumber = phoneNumberEditText.getText().toString();
         String message = messageEditText.getText().toString();
@@ -99,21 +115,24 @@ public class LocationEntryActivity extends AppCompatActivity {
         int boundaryRadius = Integer.parseInt(boundaryRadiusEditText.getText().toString());
 
         // Check if an entry with the same name already exists
-        LocationBoundary existingEntry = LocationUtils.getLocationBoundaryByName(name);
+        LocationBoundary existingEntry = LocationUtils.getLocationBoundaryByName(name, LocationUtils.getAllLocationBoundaries(this));
 
         if (existingEntry != null) {
+
+            Log.i("Entry exists", existingEntry.toString());
+            Log.i("boundaryRadius", String.valueOf(boundaryRadius));
             // Update the existing entry
+            existingEntry.setName(name);
             existingEntry.setPhoneNumber(phoneNumber);
             existingEntry.setMessage(message);
-            existingEntry.setLatitude(latitude);
-            existingEntry.setLongitude(longitude);
             existingEntry.setBoundaryRadius(boundaryRadius);
+            LocationUtils.updateLocationBoundary(this, existingEntry);
         } else {
             // Create a new entry
             LocationBoundary locationBoundary = new LocationBoundary(name, phoneNumber, message, latitude, longitude, boundaryRadius);
 
             // Save the location entry to a list or database
-            LocationUtils.addLocationBoundary(locationBoundary);
+            LocationUtils.addLocationBoundary(this, locationBoundary);
         }
 
         // Optionally, you can navigate back to the main activity or perform other actions
@@ -124,15 +143,10 @@ public class LocationEntryActivity extends AppCompatActivity {
         String name = nameEditText.getText().toString();
 
         // Use the name or another identifier to locate and delete the entry
-        LocationUtils.deleteLocationBoundaryByName(name);
+        LocationUtils.deleteLocationBoundaryByName(this, name);
 
         // Optionally, you can navigate back to the main activity or perform other actions
         finish();
-    }
-
-    private void switchToLocationEntryActivity() {
-        Intent intent = new Intent(this, LocationEntryActivity.class);
-        startActivity(intent);
     }
 
 }

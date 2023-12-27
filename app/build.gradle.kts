@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.locateme"
+    namespace = "capspatial.locateme"
     compileSdk = 34
 
     packaging {
@@ -12,11 +12,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.locateme"
-        minSdk = 24
+        applicationId = "capspatial.locateme"
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -35,6 +35,7 @@ android {
 
 dependencies {
 
+    implementation("com.mapbox.maps:android:11.0.0")
     implementation("androidx.annotation:annotation:1.7.1")
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("com.sun.mail:android-activation:1.6.7")

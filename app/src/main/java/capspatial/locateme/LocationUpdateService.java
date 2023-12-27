@@ -1,4 +1,4 @@
-package com.example.locateme;
+package capspatial.locateme;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

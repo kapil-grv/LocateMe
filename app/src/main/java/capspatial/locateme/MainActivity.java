@@ -1,4 +1,4 @@
-package com.example.locateme;
+package capspatial.locateme;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -6,6 +6,7 @@ import android.app.AppOpsManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,8 +35,12 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.mapbox.geojson.Point;
+import com.mapbox.maps.CameraOptions;
+import com.mapbox.maps.MapView;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -48,6 +53,11 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     private LocationBoundary selectedEntry;
     private double currentLatitude = 0.0;
     private double currentLongitude = 0.0;
+    private MapView mapView;
+    private ProgressDialog progressDialog;
+    private static List<LocationBoundary> locationBoundaries;
+
+    private boolean startedLocationUpdateService = false;
 
     // TODO: Consider calling
     //    * Pages:
@@ -70,11 +80,20 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get all locations
+        locationBoundaries = LocationUtils.getAllLocationBoundaries(this);
+
+        // Initialize the ProgressDialog
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading Map...");
+        progressDialog.setCancelable(false); // Set to false if you don't want users to cancel
+
         // Request location and SMS permissions
         requestPermissions();
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         locationTextView = findViewById(R.id.locationTextView);
+        mapView = findViewById(R.id.mapView);
 
         Button getLocationButton = findViewById(R.id.getLocationButton);
         getLocationButton.setOnClickListener(view -> Executors.newSingleThreadExecutor().execute(new LocationTask()));
@@ -86,29 +105,18 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         selectedEntry = entry;
     }
 
-    // Method to get the selected entry
-    public LocationBoundary getSelectedEntry() {
-        return selectedEntry;
-    }
-
     // Method to handle item selection, call this when an entry is selected
     private void onItemSelected(LocationBoundary entry) {
-        Log.d("MainActivity", "Item selected: " + entry.getName());
+        Log.i("MainActivity", "Item selected: " + entry.getName());
         setSelectedEntry(entry);
 
         // Call editEntry directly when an entry is clicked
         editEntry(selectedEntry);
     }
 
-
-    private void enableEditButton() {
-        Button editButton = findViewById(R.id.buttonEditEntry);
-        editButton.setEnabled(true);
-    }
-
     private void listAllEntries() {
         // Retrieve all entries (modify this based on your data structure)
-        List<LocationBoundary> allEntries = LocationUtils.getAllLocationBoundaries();
+        List<LocationBoundary> allEntries = LocationUtils.getAllLocationBoundaries(this);;
 
         // Use a dialog or start a new activity to display the list
         // For simplicity, let's use a dialog in this example
@@ -141,14 +149,8 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     }
 
     public void createEntry(View view) {
-        switchToLocationEntryActivity();
-    }
-
-    private void switchToLocationEntryActivity() {
-        Intent intent = new Intent(this, LocationEntryActivity.class);
-        intent.putExtra("LATITUDE", currentLatitude);
-        intent.putExtra("LONGITUDE", currentLongitude);
-        startActivity(intent);
+        Log.i("Creation request", "New Entry");
+        switchToLocationEntryActivity(false, null);
     }
 
     public void editEntry(LocationBoundary entry) {
@@ -162,7 +164,12 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         Intent intent = new Intent(this, LocationEntryActivity.class);
         intent.putExtra("EDIT_MODE", editMode);
 
+        if (!startedLocationUpdateService) {
+            startLocationUpdateService();
+        }
+
         if (editMode) {
+            Log.i("Edit mode", "Activated for " + existingEntry.toString());
             // Use consistent keys when putting extras
             intent.putExtra("NAME", existingEntry.getName());
             intent.putExtra("PHONE_NUMBER", existingEntry.getPhoneNumber());
@@ -170,6 +177,9 @@ public class MainActivity extends AppCompatActivity implements Serializable {
             intent.putExtra("LATITUDE", existingEntry.getLatitude());
             intent.putExtra("LONGITUDE", existingEntry.getLongitude());
             intent.putExtra("BOUNDARY_RADIUS", existingEntry.getBoundaryRadius());
+        } else {
+            intent.putExtra("LATITUDE", currentLatitude);
+            intent.putExtra("LONGITUDE", currentLongitude);
         }
 
         startActivity(intent);
@@ -192,17 +202,29 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 break;  // Request only once if any permission is not granted
             }
         }
+    }
+
+    private void startLocationUpdateService() {
 
         // Start the location update service with the MainActivity instance
         Intent serviceIntent = new Intent(this, LocationUpdateService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
+            startedLocationUpdateService = true;
         }
     }
 
     public void requestLocation() {
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // Update UI elements here
+                    progressDialog.show(); // Show the progress dialog on the main thread
+                }
+            });
 
             // Create a location request
             LocationRequest locationRequest = new LocationRequest.Builder(0).setMinUpdateDistanceMeters(5).build();
@@ -211,12 +233,29 @@ public class MainActivity extends AppCompatActivity implements Serializable {
 
                 @Override
                 public void onLocationResult(@NonNull LocationResult locationResult) {
+
                     if (locationResult.getLocations().size() > 0) {
                         Location location = locationResult.getLocations().get(0);
 
                         updateLocationTextView(location.getLatitude(), location.getLongitude());
                         currentLatitude = location.getLatitude();
                         currentLongitude = location.getLongitude();
+
+                        // Create a CameraPosition with the current location and desired zoom level
+                        mapView.getMapboxMap().setCamera(
+                                new CameraOptions.Builder()
+                                        .center(Point.fromLngLat(currentLongitude, currentLatitude))
+                                        .pitch(0.0)
+                                        .zoom(16.0)
+                                        .bearing(0.0)
+                                        .build()
+                        );
+
+                        // Dismiss the progress dialog after loading is complete
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+
                         Log.i("LocationUpdateService", "Updating coordinates to " + location.getLatitude() +"|"+ location.getLongitude());
                     }
                 }

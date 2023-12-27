@@ -2,6 +2,15 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
 
         // Mapbox Maven repository
         maven {
@@ -12,15 +21,6 @@ pluginManagement {
             credentials.password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").get()
             authentication.create<BasicAuthentication>("basic")
         }
-
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
     }
 }
 

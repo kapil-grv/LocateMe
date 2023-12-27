@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,12 +11,12 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/get_location"
+        app:layout_constraintBottom_toTopOf="@id/locationTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/locationTextView"
-        android:layout_marginTop="16dp"
         tools:ignore="NotSibling" />
 
     <androidx.cardview.widget.CardView
@@ -37,26 +36,31 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text=""
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
     </androidx.cardview.widget.CardView>
 
-    <ImageView
-        android:id="@+id/myImageView"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:scaleType="fitXY"
-        app:layout_constraintTop_toBottomOf="@id/cardView"
+    <com.mapbox.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="400dp"
+        android:layout_height="464dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="200dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/test" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:mapbox_cameraBearing="0.0"
+        app:mapbox_cameraPitch="0.0"
+        app:mapbox_cameraTargetLat="22"
+        app:mapbox_cameraTargetLng="78"
+        app:mapbox_cameraZoom="3"
+        app:mapbox_locationComponentEnabled="true"
+        app:mapbox_locationComponentPuckBearing="heading"/>
 
     <Button
         android:id="@+id/buttonSwitchActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="520dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="676dp"
         android:onClick="createEntry"
         android:text="Create Entry"
         app:layout_constraintStart_toStartOf="parent"
@@ -67,8 +71,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/buttonSwitchActivity"
-        android:layout_marginStart="244dp"
-        android:layout_marginTop="520dp"
+        android:layout_marginStart="264dp"
+        android:layout_marginTop="676dp"
         android:onClick="showEntries"
         android:text="Show Entries"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,4 +1,4 @@
-package com.example.locateme;
+package capspatial.locateme;
 
 import org.junit.Test;
 
