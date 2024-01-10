@@ -1,9 +1,13 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
+
+    // Add the Performance Monitoring Gradle plugin
+    id("com.google.firebase.firebase-perf")
 }
 
 android {
-    namespace = "capspatial.locateme"
+    namespace = "grv.locateme"
     compileSdk = 34
 
     packaging {
@@ -12,11 +16,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "capspatial.locateme"
-        minSdk = 21
+        applicationId = "grv.locateme"
+        minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.2"
+        versionCode = 3
+        versionName = "0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,6 +38,19 @@ android {
 }
 
 dependencies {
+
+    implementation("com.google.android.gms:play-services-nearby:19.0.0")
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+
+    // Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Add the dependency for the Performance Monitoring library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-perf")
 
     implementation("com.mapbox.maps:android:11.0.0")
     implementation("androidx.annotation:annotation:1.7.1")

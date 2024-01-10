@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1098301635108",
+    "project_id": "grv-locate-me",
+    "storage_bucket": "grv-locate-me.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098301635108:android:f0a9378f995fb250fb36b1",
+        "android_client_info": {
+          "package_name": "grv.locateme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgx_-8YA09N-ml8FZiODcadXfpHYD93N8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

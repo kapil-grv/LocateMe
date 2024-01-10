@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,41 +16,48 @@
             android:id="@+id/editTextName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name" />
+            android:hint="A name for this entry" />
 
         <EditText
             android:id="@+id/editTextPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Phone Number"
+            android:hint="Phone Number (+91 followed by 10 digit number)"
             android:inputType="phone" />
 
         <EditText
             android:id="@+id/editTextMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Message" />
+            android:hint="Your custom message" />
 
         <EditText
             android:id="@+id/editTextLatitude"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Latitude"
+            android:hint="Latitude (12.4522)"
             android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/editTextLongitude"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Longitude"
+            android:hint="Longitude (77.3445)"
             android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/editTextBoundaryRadius"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Radius in Meters"
+            android:hint="Radius in Meters (100)"
             android:inputType="number" />
+
+        <EditText
+            android:id="@+id/editTextFrequency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Frequency (in minutes. 12 Hours by default)"
+            android:inputType="number"/>
 
         <Button
             android:id="@+id/buttonSave"
@@ -61,9 +70,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/buttonSave"
-            android:layout_marginTop="16dp"
-            android:text="Delete"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:text="Delete" />
 
     </LinearLayout>
 

@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Locate Me</string>
-    <string name="get_location">Get Location</string>
+    <string name="locate_me">Locate Me</string>
 </resources>
