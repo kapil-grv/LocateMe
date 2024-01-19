@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
             // Use consistent keys when putting extras
             intent.putExtra("NAME", existingEntry.getName());
             intent.putExtra("PHONE_NUMBER", existingEntry.getPhoneNumber());
+            intent.putExtra("EMAIL", existingEntry.getEmail());
             intent.putExtra("MESSAGE", existingEntry.getMessage());
             intent.putExtra("LATITUDE", existingEntry.getLatitude());
             intent.putExtra("LONGITUDE", existingEntry.getLongitude());

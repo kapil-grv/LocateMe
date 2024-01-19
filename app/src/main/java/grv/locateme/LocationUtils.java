@@ -35,6 +35,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class LocationUtils {
     private static final String LOCATION_PREFERENCES_PREFIX = "location_preferences_";
     private static final String LOCATION_PREFERENCES_KEY = "location_boundaries";
@@ -292,7 +296,34 @@ public class LocationUtils {
         if (isWithinBoundary(currentLocation, boundary.getLatitude(), boundary.getLongitude(), boundary.getBoundaryRadius())) {
             if (shouldSendMessageBasedOnFrequency(context, boundary)) {
                 // Send the SMS
-                sendSms(boundary.getPhoneNumber(), boundary.getMessage());
+                // sendSms(boundary.getPhoneNumber(), boundary.getMessage());
+
+                // Send Email
+                // Create an instance of the ApiService
+                ApiService apiService = ApiClient.getClient().create(ApiService.class);
+
+                // Create an instance of EmailRequest with your data
+                EmailRequest emailRequest = new EmailRequest(boundary.getEmail(), boundary.getName(), boundary.getMessage());
+
+                // Make the API call
+                Call<String> call = apiService.sendEmail(emailRequest);
+                call.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful()) {
+                            String responseBody = response.body();
+                            // Handle the successful response
+                        } else {
+                            // Handle non-successful response
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        // Handle the failure
+                    }
+                });
+
                 updateLastLocationUpdateDate(context, boundary);
                 updateLastMessageSentDate(context, boundary);
 

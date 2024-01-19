@@ -18,12 +18,19 @@
             android:layout_height="wrap_content"
             android:hint="A name for this entry" />
 
+<!--        <EditText-->
+<!--            android:id="@+id/editTextPhoneNumber"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:hint="Phone Number (+91 followed by 10 digit number)"-->
+<!--            android:inputType="phone" />-->
+
         <EditText
-            android:id="@+id/editTextPhoneNumber"
+            android:id="@+id/editTextEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Phone Number (+91 followed by 10 digit number)"
-            android:inputType="phone" />
+            android:hint="Enter Email Address (xyz@example.com)"
+            android:inputType="textEmailAddress" />
 
         <EditText
             android:id="@+id/editTextMessage"

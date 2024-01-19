@@ -52,7 +52,7 @@ public class LocationUpdateService extends Service {
         public void run() {
 
             LocationUtils.requestLocation(LocationUpdateService.this, fusedLocationClient);
-            Log.i("LocationUpdateService", "Initiating location updates");
+            Log.i("LocationUpdateService", "location update check");
 
             // Continue running the task periodically
             handler.postDelayed(this, 5000); // Update every 5 seconds (adjust as needed)

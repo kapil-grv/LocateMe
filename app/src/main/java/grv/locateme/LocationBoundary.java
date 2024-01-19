@@ -12,8 +12,9 @@ public class LocationBoundary implements Serializable {
     private double longitude;
     private int boundaryRadius;
     private int frequency;
+    private String email;
 
-    public LocationBoundary(String name, String phoneNumber, String message, double latitude, double longitude, int boundaryRadius, int frequency) {
+    public LocationBoundary(String name, String phoneNumber, String message, double latitude, double longitude, int boundaryRadius, int frequency, String email) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.message = message;
@@ -21,6 +22,7 @@ public class LocationBoundary implements Serializable {
         this.longitude = longitude;
         this.boundaryRadius = boundaryRadius;
         this.frequency = frequency;
+        this.email = email;
     }
 
     public String getName() { return name;}
@@ -76,7 +78,14 @@ public class LocationBoundary implements Serializable {
         return frequency;
     }
 
-    @NonNull
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String toString() {
         return "LocationBoundary{" +
@@ -87,6 +96,7 @@ public class LocationBoundary implements Serializable {
                 ", longitude=" + longitude +
                 ", boundaryRadius=" + boundaryRadius +
                 ", frequency=" + frequency +
+                ", email='" + email + '\'' +
                 '}';
     }
 }
