@@ -31,6 +31,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -231,10 +232,20 @@ public class LocationUtils {
                 }.getType());
 
                 // Check if the parsed entry has the specified name
-                if (boundaries != null && !boundaries.isEmpty() && boundaries.get(0).getName().equals(nameToRemove)) {
-                    // Remove the entire entry with the specified name
-                    editor.remove(entry.getKey());
-                    break; // Exit the loop after removal
+                if (boundaries != null && !boundaries.isEmpty()) {
+                    // Find and remove the specific LocationBoundary object with the specified name
+                    Iterator<LocationBoundary> iterator = boundaries.iterator();
+                    while (iterator.hasNext()) {
+                        LocationBoundary boundary = iterator.next();
+                        if (boundary.getName().equals(nameToRemove)) {
+                            iterator.remove();
+                            break; // Exit the loop after removal
+                        }
+                    }
+
+                    // Update the entry with the modified list
+                    editor.putString(entry.getKey(), new Gson().toJson(boundaries));
+                    break; // Exit the loop after modification
                 }
             }
         }

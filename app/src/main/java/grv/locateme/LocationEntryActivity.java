@@ -134,7 +134,7 @@ public class LocationEntryActivity extends AppCompatActivity {
             Log.i("Entry exists", existingEntry.toString());
             Log.i("frequency", String.valueOf(frequency));
             // Update the existing entry
-            existingEntry.setName(name);
+//            existingEntry.setName(name);
 //            existingEntry.setPhoneNumber(phoneNumber);
             existingEntry.setEmail(email);
             existingEntry.setMessage(message);

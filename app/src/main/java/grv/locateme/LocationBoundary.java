@@ -52,36 +52,28 @@ public class LocationBoundary implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
     public void setMessage(String message) {
         this.message = message;
     }
-
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
-
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-
     public void setBoundaryRadius(int boundaryRadius) {
         this.boundaryRadius = boundaryRadius;
     }
     public void setFrequency(int frequency) { this.frequency = frequency; }
-
     public int getFrequency() {
         return frequency;
     }
-
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
