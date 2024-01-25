@@ -3,4 +3,5 @@
     <string name="locate_me">Locate Me</string>
     <string name="create_entry">Create Entry</string>
     <string name="show_entries">Show Entries</string>
+    <string name="update">Update</string>
 </resources>

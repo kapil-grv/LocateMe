@@ -14,7 +14,7 @@ import java.util.Objects;
 public class LocationEntryActivity extends AppCompatActivity {
 
     private EditText nameEditText;
-    private EditText phoneNumberEditText;
+//    private EditText phoneNumberEditText;
     private EditText emailEditText;
     private EditText messageEditText;
     private EditText latitudeEditText;
@@ -39,21 +39,11 @@ public class LocationEntryActivity extends AppCompatActivity {
         frequencyEditText = findViewById(R.id.editTextFrequency);
         saveButton = findViewById(R.id.buttonSave);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveLocationEntry();
-            }
-        });
+        saveButton.setOnClickListener(view -> saveLocationEntry());
 
         // Initialize the delete button
         deleteButton = findViewById(R.id.buttonDelete);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deleteLocationEntry();
-            }
-        });
+        deleteButton.setOnClickListener(view -> deleteLocationEntry());
 
         // Check if in edit mode
         Intent intent = getIntent();
@@ -65,15 +55,17 @@ public class LocationEntryActivity extends AppCompatActivity {
             // Iterate through all extras and print key-value pairs
             for (String key : extras.keySet()) {
                 Object value = extras.get(key);
-                Log.d("Intent Extra", key + ": " + value.toString());
+                if (value != null) {
+                    Log.d("Intent Extra", key + ": " + value);
+                }
             }
         }
 
-        if (intent.getBooleanExtra("EDIT_MODE", false)) {
+        if (intent != null && intent.getBooleanExtra("EDIT_MODE", false)) {
             // Load existing entry details for editing
             Log.i("Edit Mode", String.valueOf(true));
             loadExistingEntry(intent);
-        } else {
+        } else if (intent != null) {
             // Handle the button click event for creating an entry
             latitudeEditText.setText(String.valueOf(intent.getDoubleExtra("LATITUDE", 0.0)));
             longitudeEditText.setText(String.valueOf(intent.getDoubleExtra("LONGITUDE", 0.0)));
@@ -106,7 +98,7 @@ public class LocationEntryActivity extends AppCompatActivity {
         frequencyEditText.setText(String.valueOf(frequency));
 
         // Change button text for edit mode
-        saveButton.setText("Update");
+        saveButton.setText(R.string.update);
 
         // Make the delete button visible when an entry is being edited
         deleteButton.setVisibility(View.VISIBLE);
@@ -133,9 +125,9 @@ public class LocationEntryActivity extends AppCompatActivity {
 
             Log.i("Entry exists", existingEntry.toString());
             Log.i("frequency", String.valueOf(frequency));
+
             // Update the existing entry
-//            existingEntry.setName(name);
-//            existingEntry.setPhoneNumber(phoneNumber);
+            // existingEntry.setPhoneNumber(phoneNumber);
             existingEntry.setEmail(email);
             existingEntry.setMessage(message);
             existingEntry.setBoundaryRadius(boundaryRadius);

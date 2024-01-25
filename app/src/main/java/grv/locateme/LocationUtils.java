@@ -45,7 +45,7 @@ public class LocationUtils {
     private static final String LOCATION_PREFERENCES_KEY = "location_boundaries";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     @SuppressLint("StaticFieldLeak")
-    private static MainActivity mainActivity;
+    static MainActivity mainActivity;
 
     public static void addLocationBoundary(Context context, LocationBoundary locationBoundary) {
         List<LocationBoundary> locationBoundaries = getAllLocationBoundaries(context);
@@ -146,7 +146,7 @@ public class LocationUtils {
                         for (LocationBoundary boundary : locationBoundaries) {
 
                             // Check if the message has been sent for the given frequency
-                            sendSmsIfWithinBoundaryWithFrequency(context, boundary, location);
+                            intimateIfWithinBoundaryWithFrequency(context, boundary, location);
                         }
 
                         // Update the location using a callback or another appropriate method
@@ -303,7 +303,7 @@ public class LocationUtils {
         editor.apply();
     }
 
-    private static void sendSmsIfWithinBoundaryWithFrequency(Context context, LocationBoundary boundary, Location currentLocation) {
+    private static void intimateIfWithinBoundaryWithFrequency(Context context, LocationBoundary boundary, Location currentLocation) {
         if (isWithinBoundary(currentLocation, boundary.getLatitude(), boundary.getLongitude(), boundary.getBoundaryRadius())) {
             if (shouldSendMessageBasedOnFrequency(context, boundary)) {
                 // Send the SMS
@@ -320,12 +320,13 @@ public class LocationUtils {
                 Call<String> call = apiService.sendEmail(emailRequest);
                 call.enqueue(new Callback<String>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.isSuccessful()) {
                             String responseBody = response.body();
+                            if (responseBody != null) {
+                                Log.d("responseBody", responseBody);
+                            }
                             // Handle the successful response
-                        } else {
-                            // Handle non-successful response
                         }
                     }
 

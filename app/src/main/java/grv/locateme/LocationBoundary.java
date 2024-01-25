@@ -5,14 +5,14 @@ import androidx.annotation.NonNull;
 import java.io.Serializable;
 
 public class LocationBoundary implements Serializable {
-    private String name;
-    private String phoneNumber;
-    private String message;
-    private double latitude;
-    private double longitude;
-    private int boundaryRadius;
-    private int frequency;
-    private String email;
+    String name;
+    String phoneNumber;
+    String message;
+    double latitude;
+    double longitude;
+    int boundaryRadius;
+    int frequency;
+    String email;
 
     public LocationBoundary(String name, String phoneNumber, String message, double latitude, double longitude, int boundaryRadius, int frequency, String email) {
         this.name = name;
@@ -58,12 +58,6 @@ public class LocationBoundary implements Serializable {
     public void setMessage(String message) {
         this.message = message;
     }
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
     public void setBoundaryRadius(int boundaryRadius) {
         this.boundaryRadius = boundaryRadius;
     }
@@ -78,6 +72,7 @@ public class LocationBoundary implements Serializable {
         this.email = email;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "LocationBoundary{" +

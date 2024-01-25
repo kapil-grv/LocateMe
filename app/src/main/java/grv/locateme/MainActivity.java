@@ -1,33 +1,21 @@
 package grv.locateme;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.AppOpsManager;
-import android.app.PendingIntent;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.graphics.drawable.IconCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -46,15 +34,13 @@ public class MainActivity extends AppCompatActivity implements Serializable {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private FusedLocationProviderClient fusedLocationClient;
-    private ActivityResultLauncher<Intent> notificationSettingsLauncher;
     private TextView locationTextView;
     private LocationBoundary selectedEntry;
     private double currentLatitude = 0.0;
     private double currentLongitude = 0.0;
     private MapView mapView;
-    private ProgressDialog progressDialog;
-    private static List<LocationBoundary> locationBoundaries;
-
+    ProgressBar progressBar;
+    static List<LocationBoundary> locationBoundaries;
     private boolean startedLocationUpdateService = false;
 
     // TODO: Consider calling
@@ -81,10 +67,8 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         // Get all locations
         locationBoundaries = LocationUtils.getAllLocationBoundaries(this);
 
-        // Initialize the ProgressDialog
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading Map. Waiting for Location ...");
-        progressDialog.setCancelable(false); // Set to false if you don't want users to cancel
+        // Initialize the ProgressBar
+        progressBar = findViewById(R.id.progressBar);
 
         // Request location and SMS permissions
         requestPermissions();
@@ -96,6 +80,14 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         Button getLocationButton = findViewById(R.id.getLocationButton);
         getLocationButton.setOnClickListener(view -> Executors.newSingleThreadExecutor().execute(new LocationTask()));
 
+    }
+
+    private void showProgressBar() {
+        runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
+    }
+
+    private void hideProgressBar() {
+        runOnUiThread(() -> progressBar.setVisibility(View.GONE));
     }
 
     // Method to set the selected entry
@@ -114,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
 
     private void listAllEntries() {
         // Retrieve all entries (modify this based on your data structure)
-        List<LocationBoundary> allEntries = LocationUtils.getAllLocationBoundaries(this);;
+        List<LocationBoundary> allEntries = LocationUtils.getAllLocationBoundaries(this);
 
         // Use a dialog or start a new activity to display the list
         // For simplicity, let's use a dialog in this example
@@ -128,14 +120,11 @@ public class MainActivity extends AppCompatActivity implements Serializable {
             entryNames[i] = allEntries.get(i).getName();
         }
 
-        builder.setItems(entryNames, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Handle item click
-                LocationBoundary selectedEntry = allEntries.get(which);
-                Log.i("Editing entry", selectedEntry.toString());
-                onItemSelected(selectedEntry);
-            }
+        builder.setItems(entryNames, (dialog, which) -> {
+            // Handle item click
+            LocationBoundary selectedEntry = allEntries.get(which);
+            Log.i("Editing entry", selectedEntry.toString());
+            onItemSelected(selectedEntry);
         });
 
         builder.show();
@@ -186,14 +175,26 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     }
 
     private void requestPermissions() {
-        String[] permissions = {
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.SEND_SMS,
-                Manifest.permission.VIBRATE, // Replace POST_NOTIFICATIONS with VIBRATE
-                Manifest.permission.FOREGROUND_SERVICE,
-                Manifest.permission.POST_NOTIFICATIONS
-        };
+        String[] permissions;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            permissions = new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.SEND_SMS,
+                    Manifest.permission.VIBRATE,
+                    Manifest.permission.FOREGROUND_SERVICE,
+                    Manifest.permission.POST_NOTIFICATIONS
+            };
+        } else {
+            permissions = new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.SEND_SMS,
+                    Manifest.permission.VIBRATE,
+                    Manifest.permission.FOREGROUND_SERVICE
+            };
+        }
 
         // Check if any of the permissions are not granted, then request them
         for (String permission : permissions) {
@@ -217,13 +218,8 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    // Update UI elements here
-                    progressDialog.show(); // Show the progress dialog on the main thread
-                }
-            });
+            // Show the progress dialog on the main thread
+            showProgressBar();
 
             // Create a location request
             LocationRequest locationRequest = new LocationRequest.Builder(0).setMinUpdateDistanceMeters(5).build();
@@ -250,11 +246,6 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                         .build()
                         );
 
-                        // Dismiss the progress dialog after loading is complete
-                        if (progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                        }
-
                         Log.i("LocationUpdateService", "Updating coordinates to " + location.getLatitude() +"|"+ location.getLongitude());
                     }
                 }
@@ -272,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
 
     private void updateLocationTextView(double latitude, double longitude) {
         locationTextView.setText(String.format("Latitude: %s\nLongitude: %s", latitude, longitude));
+        hideProgressBar(); // Hide ProgressBar after location is updated
     }
 
     private class LocationTask implements Runnable {
